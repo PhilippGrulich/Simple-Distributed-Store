@@ -1,0 +1,16 @@
+<replicationpaths>
+	<path start="A">
+		<link src="A" type="sync" target="B"/>
+		<link src="B" type="async" target="C"/>
+	</path>
+	<path start="B">
+		<link src="B" type="quorum" qsize="1">
+			<qparticipant name="A"/>
+			<qparticipant name="C"/>
+		</link>		
+	</path>
+	<path start="C">
+		<link src="C" type="async" target="A"/>
+		<link src="C" type="async" target="B"/>
+	</path>
+</replicationpaths>
