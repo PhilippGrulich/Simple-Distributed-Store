@@ -16,51 +16,12 @@ public class Nodes {
 	
 	/** Properties **/
 	private char id;			//ID of the node
-	private HashMap<Integer, String> hash;	//HashMap key : integer, value : String
+	
 	private int[] port = { 9001, 9002, 9003 };
+	
+	private DataStore dataStore;
 	/** Properties **/
 	
-	public static void main(String[] args){
-		
-		Nodes a = new Nodes('A');
-		Config c = new Config();
-		String[] path = c.configValue(""+a.getId());
-		
-		try {
-			a.doStartNode();
-			//a.sendData("B", "Tes|3",1, port[2]);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		/*
-		if(path.length != 0){
-			for(String x : path){
-				
-				String[] conf = x.split("\\|");
-				
-				String src = conf[0];
-				String type = conf[1];
-				String target = conf[2];
-				
-
-				try {
-					if(type == "sync"){
-						a.doStartNode(target, "Tes|3",0);	//Start syncronous
-					} else if (type == "async"){
-						a.doStartNode(target, "Tes|3",1);	//Start asyncronous
-					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}*/
-		
-		/*
-		*/
-	}
 	
 	/**
 	 * Constructor.
@@ -69,8 +30,10 @@ public class Nodes {
 	 */
 	public Nodes(char id){
 		this.id = id;
-		hash = new HashMap<Integer, String>();
+		dataStore = new DataStore();
 	}
+	
+
 
 	/**
 	 * Get Id function
@@ -80,51 +43,13 @@ public class Nodes {
 	public char getId() {
 		return id;
 	}
-	
-	/**
-	 * Store value
-	 * 
-	 * @param id (integer)
-	 * @param value (String)
-	 */
-	public void setValue(int id, String value){
-		hash.put(id, value);
-	}
-	
-	/**
-	 * Get value
-	 * 
-	 * @param id (integer)
-	 * @return value (String) 
-	 */
-	public String getValue(int id){
-		return hash.get(id);
-	}
-	
-	/**
-	 * Delete value
-	 * 
-	 * @param id (integer) 
-	 */
-	public void delValue(int id){
-		hash.remove(id);
-	}
-	
-	/**
-	 * Get Hash Size
-	 * 
-	 * @return hash size (integer)
-	 */
-	public int getHashSize(){
-		return hash.size();
-	}
-	
+		
 	
 	/**
 	 * Start the listener
 	 * 
 	 */
-	private void doStartNode() throws IOException{
+	public void doStartNode() throws IOException{
 		RequestHandlerRegistry.getInstance().registerHandler(""+getId(),
                 new EchoRequestHandler());
         Receiver r = new Receiver(9002);
@@ -182,7 +107,7 @@ public class Nodes {
 
         private Response response;
 
-        @Override
+     
         public void callback(Response resp) {
             setResponse(resp);
             setEchoSuccessful(resp.responseCode());
