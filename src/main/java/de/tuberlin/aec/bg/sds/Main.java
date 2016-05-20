@@ -9,13 +9,7 @@ public class Main {
 		Config c = new Config();
 		String[] path = c.configValue(""+a.getId());
 		
-		try {
-			a.doStartNode();
-			//a.sendData("B", "Tes|3",1, port[2]);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	
 		
 		/*
 		if(path.length != 0){

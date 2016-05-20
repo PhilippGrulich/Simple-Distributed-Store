@@ -1,7 +1,6 @@
 package de.tuberlin.aec.bg.sds;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import de.tub.ise.hermes.AsyncCallbackRecipient;
 import de.tub.ise.hermes.Receiver;
@@ -9,8 +8,8 @@ import de.tub.ise.hermes.Request;
 import de.tub.ise.hermes.RequestHandlerRegistry;
 import de.tub.ise.hermes.Response;
 import de.tub.ise.hermes.Sender;
-import de.tuberlin.aec.*;
 import de.tub.ise.hermes.handlers.EchoRequestHandler;
+import de.tuberlin.aec.bg.sds.replication.ReplicationService;
 
 public class Nodes {
 	
@@ -21,6 +20,8 @@ public class Nodes {
 	
 	private DataStore dataStore;
 	/** Properties **/
+
+	private ReplicationService replicationService;
 	
 	
 	/**
@@ -31,6 +32,24 @@ public class Nodes {
 	public Nodes(char id){
 		this.id = id;
 		dataStore = new DataStore();
+		try {
+			replicationService = new ReplicationService();
+			replicationService.recieveReplica(replicationMessage -> {
+				
+				// we have to save the new key value pair
+				// we have to replicate it to the other nodes
+				// we have to check if the replication successes 
+				return true;
+			});
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		// we have to create an public api for the client. So he can start an update. 
+		// maybe as a http rest api? so it would be cool for demonstration ? 
+		
+		
 	}
 	
 
@@ -45,74 +64,7 @@ public class Nodes {
 	}
 		
 	
-	/**
-	 * Start the listener
-	 * 
-	 */
-	public void doStartNode() throws IOException{
-		RequestHandlerRegistry.getInstance().registerHandler(""+getId(),
-                new EchoRequestHandler());
-        Receiver r = new Receiver(9002);
-        r.start();
-	}
-	
-	/**
-	 * Sending the data
-	 * 
-	 * @param type : 0 is synchronous, 1 is asynchronous, 2 is quorum
-	 * @param Nodename : target node
-	 * @param keyValue : key:value
-	 * @param port : target port
-	 * 
-	 */
-	private void sendData(String Nodename, String keyValue, int type, int port){
-		Sender s = new Sender("localhost", port);
-        Request req = new Request(Nodename, keyValue);
-        
-        //Type 1 is Asynchronous
-        if(type == 1){
-        	AsyncCallback echoAsyncCallback = new AsyncCallback();
-            boolean received = s.sendMessageAsync(req, echoAsyncCallback);
-        //Type 2 is Quorum
-        } else if(type == 2){
-        	
-        }
-        //Else is Syncronous*/
-	}
-	
-	/**
-	 * 
-	 * Class for handling callback
-	 *
-	 */
-	private class AsyncCallback implements AsyncCallbackRecipient {
 
-    	public boolean isEchoSuccessful() {
-            return echoSuccessful;
-        }
-
-        public void setEchoSuccessful(boolean echoSuccessful) {
-            this.echoSuccessful = echoSuccessful;
-        }
-
-        private boolean echoSuccessful;
-
-        public Response getResponse() {
-            return response;
-        }
-
-        public void setResponse(Response response) {
-            this.response = response;
-        }
-
-        private Response response;
-
-     
-        public void callback(Response resp) {
-            setResponse(resp);
-            setEchoSuccessful(resp.responseCode());
-        }
-    }
 }
 
 
