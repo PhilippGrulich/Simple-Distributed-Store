@@ -1,6 +1,8 @@
 package de.tuberlin.aec.bg.sds;
 
-public class Operation {
+import java.io.Serializable;
+
+public class Operation implements Serializable {
 	
 	public enum Type{
 		GET,
