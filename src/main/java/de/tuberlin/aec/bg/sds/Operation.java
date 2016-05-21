@@ -1,4 +1,4 @@
-package de.tuberlin.aec.bg.sds.messages;
+package de.tuberlin.aec.bg.sds;
 
 public class Operation {
 	

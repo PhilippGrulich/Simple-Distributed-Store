@@ -3,7 +3,7 @@ package de.tuberlin.aec.bg.sds;
 import java.util.HashMap;
 
 public class DataStore {
-	private HashMap<Integer, String> hash = new HashMap<Integer,String>();	//HashMap key : integer, value : String
+	private HashMap<String, String> hash = new HashMap<String,String>();	//HashMap key : integer, value : String
 	
 	/**
 	 * Store value
@@ -11,7 +11,7 @@ public class DataStore {
 	 * @param id (integer)
 	 * @param value (String)
 	 */
-	public void setValue(int id, String value){
+	public void setValue(String id, String value){
 		hash.put(id, value);
 	}
 	
@@ -21,7 +21,7 @@ public class DataStore {
 	 * @param id (integer)
 	 * @return value (String) 
 	 */
-	public String getValue(int id){
+	public String getValue(String id){
 		return hash.get(id);
 	}
 	
@@ -30,7 +30,7 @@ public class DataStore {
 	 * 
 	 * @param id (integer) 
 	 */
-	public void delValue(int id){
+	public void delValue(String id){
 		hash.remove(id);
 	}
 	
@@ -41,5 +41,10 @@ public class DataStore {
 	 */
 	public int getHashSize(){
 		return hash.size();
+	}
+
+	public void executeOperation(Operation operation) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -16,7 +16,10 @@ import de.tub.ise.hermes.RequestHandlerRegistry;
 import de.tub.ise.hermes.Response;
 import de.tub.ise.hermes.Sender;
 import de.tub.ise.hermes.handlers.EchoRequestHandler;
-import de.tuberlin.aec.bg.sds.messages.ReplicationMessage;
+import de.tuberlin.aec.bg.sds.Operation;
+import de.tuberlin.aec.bg.sds.replication.types.ASyncReplicationLink;
+import de.tuberlin.aec.bg.sds.replication.types.ReplicationLink;
+import de.tuberlin.aec.bg.sds.replication.types.SyncReplicationLink;
 
 /**
  * 
@@ -26,23 +29,23 @@ import de.tuberlin.aec.bg.sds.messages.ReplicationMessage;
  */
 public class ReplicationService {
 	
-	private Receiver r;
-	
 	private Function<ReplicationMessage,Boolean> callback;
 
 	public ReplicationService() throws IOException {
 		RequestHandlerRegistry.getInstance().registerHandler("replication",new ReplicationRequestHandler()   );
-        r = new Receiver(9002);
-        r.start();
+       
 	}
 	
-	public boolean sendReplicate(String Nodename, String keyValue, int type, int port){
-		sendData(Nodename,keyValue,type,port);
-		return true;
+	public boolean sendReplicates(String startNode, List<ReplicationLink> replicationLinks, Operation operation ){
+		boolean returnValue = true;
+		for (ReplicationLink replicationLink: replicationLinks){
+			returnValue = returnValue && true == sendData(startNode,replicationLink,operation);	
+		};		
+		return returnValue;
 		
 	}
 	
-	public void recieveReplica(Function<ReplicationMessage,Boolean> callback){
+	public void registerReplicaCallback(Function<ReplicationMessage,Boolean> callback){
 		this.callback = callback;
 	}
 	
@@ -53,21 +56,22 @@ public class ReplicationService {
 	 * @param Nodename : target node
 	 * @param keyValue : key:value
 	 * @param port : target port
+	 * @return 
 	 * 
 	 */
-	private void sendData(String Nodename, String keyValue, int type, int port){
-		Sender s = new Sender("localhost", port);
-        Request req = new Request(Nodename, keyValue);
-        
-        //Type 1 is Asynchronous
-        if(type == 1){
-        	AsyncCallback echoAsyncCallback = new AsyncCallback();
-            boolean received = s.sendMessageAsync(req, echoAsyncCallback);
-        //Type 2 is Quorum
-        } else if(type == 2){
-        	
-        }
-        //Else is Syncronous*/
+	private boolean sendData(String startNode, ReplicationLink replicationLink, Operation operation){
+		ReplicationMessage replicationMessage = new ReplicationMessage(operation, startNode);
+        Request req = new Request(replicationMessage,"replica","replica");
+		Sender s = new Sender("localhost", 10);
+		
+		if(replicationLink instanceof ASyncReplicationLink){
+			AsyncCallback echoAsyncCallback = new AsyncCallback();
+            return s.sendMessageAsync(req, echoAsyncCallback);
+		}else if(replicationLink instanceof SyncReplicationLink){
+			Response received = s.sendMessage(req, 3000);
+            return received.responseCode();
+		}
+		return false;
 	}
 	
 	/**

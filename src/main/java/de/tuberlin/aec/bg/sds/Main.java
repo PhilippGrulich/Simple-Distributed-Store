@@ -2,14 +2,19 @@ package de.tuberlin.aec.bg.sds;
 
 import java.io.IOException;
 
+import de.tub.ise.hermes.Receiver;
+
 public class Main {
 
-	public static void main(String[] args){
-		Nodes a = new Nodes('A');
+	public static void main(String[] args) throws IOException{
+		//Nodes a = new Nodes('A');
 		Config c = new Config();
-		String[] path = c.configValue(""+a.getId());
+		System.out.println(c.configValue("A"));
 		
-	
+		//Start Hermes receiver 
+		 Receiver r = new Receiver(9002);
+	     r.start();
+	     
 		
 		/*
 		if(path.length != 0){
