@@ -16,6 +16,7 @@ import de.tub.ise.hermes.RequestHandlerRegistry;
 import de.tub.ise.hermes.Response;
 import de.tub.ise.hermes.Sender;
 import de.tub.ise.hermes.handlers.EchoRequestHandler;
+import de.tuberlin.aec.bg.sds.Log;
 import de.tuberlin.aec.bg.sds.Operation;
 import de.tuberlin.aec.bg.sds.replication.types.ASyncReplicationLink;
 import de.tuberlin.aec.bg.sds.replication.types.ReplicationLink;
@@ -30,29 +31,38 @@ import de.tuberlin.aec.bg.sds.replication.types.SyncReplicationLink;
 public class ReplicationService {
 
 	private Function<ReplicationMessage, Boolean> callback;
-
-	public ReplicationService() throws IOException {
+	private Log log = new Log();
+	String nodeName = "";
+	
+	public ReplicationService(String nodeName) throws IOException {
+		
+		this.nodeName = nodeName;
+		
 		System.out.println("Create Replication Service");
+		log.writeToFile("Create Replication Service", nodeName);
+		
+		
 		RequestHandlerRegistry.getInstance().registerHandler("replication",
 				new ReplicationRequestHandler());
 
 	}
 
 	public boolean sendReplicates(String startNode,
-			List<ReplicationLink> replicationLinks, Operation operation)
-			throws Exception {
-		boolean returnValue = true;
-		for (ReplicationLink replicationLink : replicationLinks) {
-			returnValue = returnValue
-					&& true == sendData(startNode, replicationLink, operation);
-		}
-		;
+		List<ReplicationLink> replicationLinks, Operation operation) throws Exception {
+			
+			boolean returnValue = true;
+			for (ReplicationLink replicationLink : replicationLinks) {
+				returnValue = returnValue
+						&& true == sendData(startNode, replicationLink, operation);
+			};
+			
 		return returnValue;
 
 	}
 
 	public void registerReplicaCallback(
-			Function<ReplicationMessage, Boolean> callback) {
+		Function<ReplicationMessage, Boolean> callback) {
+		
 		this.callback = callback;
 	}
 
@@ -82,17 +92,21 @@ public class ReplicationService {
 			// Get node host and port by name
 			ASyncReplicationLink asyncReplicationLink = (ASyncReplicationLink) replicationLink;
 			String[] splited = asyncReplicationLink.target.split(":");
+			
 			if (splited.length != 2)
 				throw new Exception("Node Name is not right formatted :"
 						+ replicationLink);
+			
 			String nodeHost = splited[0];
 			String nodePort = splited[1];
+			
 			System.out.println("Replicate ASync to " + asyncReplicationLink.target );
+			log.writeToFile("Replicate ASync to " + asyncReplicationLink.target, startNode);
+			
 			Sender s = new Sender(nodeHost, Integer.parseInt(nodePort));
 			AsyncCallback echoAsyncCallback = new AsyncCallback();
 			return s.sendMessageAsync(req, echoAsyncCallback);
 		} else if (replicationLink instanceof SyncReplicationLink) {
-			
 			
 			// Get node host and port by name
 			SyncReplicationLink syncReplicationLink = (SyncReplicationLink) replicationLink;
@@ -103,9 +117,13 @@ public class ReplicationService {
 						+ replicationLink);
 			String nodeHost = splited[0];
 			String nodePort = splited[1];
+			
 			System.out.println("Replicate Sync to " + syncReplicationLink.target );
+			log.writeToFile("Replicate Sync to " + syncReplicationLink.target, startNode);
+			
 			Sender s = new Sender(nodeHost, Integer.parseInt(nodePort));
 			Response received = s.sendMessage(req, 3000);
+			
 			return received.responseCode();
 		}
 		return false;
@@ -151,7 +169,9 @@ public class ReplicationService {
 	private class ReplicationRequestHandler implements IRequestHandler {
 
 		public Response handleRequest(Request req) {
-			System.out.println("We go a replication Message: "+ req);
+			System.out.println("We got a replication Message: "+ req);
+			log.writeToFile("Got a replication message", nodeName);
+			
 			Response r;
 			if (req.getItems().get(0) instanceof ReplicationMessage) {
 				ReplicationMessage replicationMessage = (ReplicationMessage) req
