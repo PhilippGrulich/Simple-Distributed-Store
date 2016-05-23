@@ -7,7 +7,7 @@ public class ASyncReplicationLink extends ReplicationLink {
 		return "ASyncReplicationLink [src="+src+" target=" + target + "]";
 	}
 
-	String target;
+	public final String target;
 
 	public ASyncReplicationLink(String src, String target) {
 		super(src);

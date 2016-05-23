@@ -24,65 +24,93 @@ import de.tuberlin.aec.bg.sds.replication.types.SyncReplicationLink;
 /**
  * 
  * This Service provides all functions which are necessary for the Replication.
- * It also handles the differences between the single replication protocols. 
+ * It also handles the differences between the single replication protocols.
  *
  */
 public class ReplicationService {
-	
-	private Function<ReplicationMessage,Boolean> callback;
+
+	private Function<ReplicationMessage, Boolean> callback;
 
 	public ReplicationService() throws IOException {
 		System.out.println("Create Replication Service");
-		RequestHandlerRegistry.getInstance().registerHandler("replication",new ReplicationRequestHandler()   );
-       
+		RequestHandlerRegistry.getInstance().registerHandler("replication",
+				new ReplicationRequestHandler());
+
 	}
-	
-	public boolean sendReplicates(String startNode, List<ReplicationLink> replicationLinks, Operation operation ) throws Exception{
+
+	public boolean sendReplicates(String startNode,
+			List<ReplicationLink> replicationLinks, Operation operation)
+			throws Exception {
 		boolean returnValue = true;
-		for (ReplicationLink replicationLink: replicationLinks){
-			returnValue = returnValue && true == sendData(startNode,replicationLink,operation);	
-		};		
+		for (ReplicationLink replicationLink : replicationLinks) {
+			returnValue = returnValue
+					&& true == sendData(startNode, replicationLink, operation);
+		}
+		;
 		return returnValue;
-		
+
 	}
-	
-	public void registerReplicaCallback(Function<ReplicationMessage,Boolean> callback){
+
+	public void registerReplicaCallback(
+			Function<ReplicationMessage, Boolean> callback) {
 		this.callback = callback;
 	}
-	
+
 	/**
 	 * Sending the data
 	 * 
-	 * @param type : 0 is synchronous, 1 is asynchronous, 2 is quorum
-	 * @param Nodename : target node
-	 * @param keyValue : key:value
-	 * @param port : target port
-	 * @return 
-	 * @throws Exception 
+	 * @param type
+	 *            : 0 is synchronous, 1 is asynchronous, 2 is quorum
+	 * @param Nodename
+	 *            : target node
+	 * @param keyValue
+	 *            : key:value
+	 * @param port
+	 *            : target port
+	 * @return
+	 * @throws Exception
 	 * 
 	 */
-	private boolean sendData(String startNode, ReplicationLink replicationLink, Operation operation) throws Exception{
-		ReplicationMessage replicationMessage = new ReplicationMessage(operation, startNode);
-        Request req = new Request(replicationMessage,"replica","replicaResult");
-        // Get node host and port by name
-        String[] splited = replicationLink.src.split(":");
-        if(splited.length!=2)
-        	throw new Exception("Node Name is not right formatted :"+ replicationLink);
-        String nodeHost = splited[0];
-        String nodePort = splited[1];
-        
-		Sender s = new Sender(nodeHost, Integer.parseInt(nodePort));
-		
-		if(replicationLink instanceof ASyncReplicationLink){
+	private boolean sendData(String startNode, ReplicationLink replicationLink,
+			Operation operation) throws Exception {
+		ReplicationMessage replicationMessage = new ReplicationMessage(
+				operation, startNode);
+		Request req = new Request(replicationMessage, "replication",
+				"replicationResult");
+
+		if (replicationLink instanceof ASyncReplicationLink) {
+			// Get node host and port by name
+			ASyncReplicationLink asyncReplicationLink = (ASyncReplicationLink) replicationLink;
+			String[] splited = asyncReplicationLink.target.split(":");
+			if (splited.length != 2)
+				throw new Exception("Node Name is not right formatted :"
+						+ replicationLink);
+			String nodeHost = splited[0];
+			String nodePort = splited[1];
+			System.out.println("Replicate ASync to " + asyncReplicationLink.target );
+			Sender s = new Sender(nodeHost, Integer.parseInt(nodePort));
 			AsyncCallback echoAsyncCallback = new AsyncCallback();
-            return s.sendMessageAsync(req, echoAsyncCallback);
-		}else if(replicationLink instanceof SyncReplicationLink){
+			return s.sendMessageAsync(req, echoAsyncCallback);
+		} else if (replicationLink instanceof SyncReplicationLink) {
+			
+			
+			// Get node host and port by name
+			SyncReplicationLink syncReplicationLink = (SyncReplicationLink) replicationLink;
+			
+			String[] splited = syncReplicationLink.target.split(":");
+			if (splited.length != 2)
+				throw new Exception("Node Name is not right formatted :"
+						+ replicationLink);
+			String nodeHost = splited[0];
+			String nodePort = splited[1];
+			System.out.println("Replicate Sync to " + syncReplicationLink.target );
+			Sender s = new Sender(nodeHost, Integer.parseInt(nodePort));
 			Response received = s.sendMessage(req, 3000);
-            return received.responseCode();
+			return received.responseCode();
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 
 	 * Class for handling callback
@@ -90,49 +118,50 @@ public class ReplicationService {
 	 */
 	private class AsyncCallback implements AsyncCallbackRecipient {
 
-    	public boolean isEchoSuccessful() {
-            return echoSuccessful;
-        }
+		public boolean isEchoSuccessful() {
+			return echoSuccessful;
+		}
 
-        public void setEchoSuccessful(boolean echoSuccessful) {
-            this.echoSuccessful = echoSuccessful;
-        }
+		public void setEchoSuccessful(boolean echoSuccessful) {
+			this.echoSuccessful = echoSuccessful;
+		}
 
-        private boolean echoSuccessful;
+		private boolean echoSuccessful;
 
-        public Response getResponse() {
-        	
-            return response;
-        }
+		public Response getResponse() {
 
-        public void setResponse(Response response) {
-            this.response = response;
-        }
+			return response;
+		}
 
-        private Response response;
+		public void setResponse(Response response) {
+			this.response = response;
+		}
 
-     
-        public void callback(Response resp) {
-            setResponse(resp);
-            
-            setEchoSuccessful(resp.responseCode());
-        }
-    }
-	
-	// This handler handles the ReplicationRequest and transfers them to the Node
+		private Response response;
+
+		public void callback(Response resp) {
+			setResponse(resp);
+
+			setEchoSuccessful(resp.responseCode());
+		}
+	}
+
+	// This handler handles the ReplicationRequest and transfers them to the
+	// Node
 	private class ReplicationRequestHandler implements IRequestHandler {
 
 		public Response handleRequest(Request req) {
+			System.out.println("We go a replication Message: "+ req);
 			Response r;
 			if (req.getItems().get(0) instanceof ReplicationMessage) {
-				ReplicationMessage replicationMessage = (ReplicationMessage) req.getItems().get(0);
+				ReplicationMessage replicationMessage = (ReplicationMessage) req
+						.getItems().get(0);
 				Boolean replicaResult = callback.apply(replicationMessage);
 				// we have to response with the result of the replication
 				r = new Response("ok", true, req, replicaResult);
-			}
-			else
-				r = new Response("fail",false,req,false);			
-			
+			} else
+				r = new Response("fail", false, req, false);
+
 			return r;
 		}
 

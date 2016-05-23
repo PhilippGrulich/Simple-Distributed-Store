@@ -14,7 +14,6 @@ public class Node {
 	/** Properties **/
 	private String nodeName; // ID of the node
 
-
 	private DataStore dataStore;
 	/** Properties **/
 
@@ -70,16 +69,14 @@ public class Node {
 	 */
 	private Boolean sendReplication(Operation operation, String startNode) {
 
-		// we have to replicate it to the other nodes
-		String startNodeName = startNode;
 		List<ReplicationLink> replicationLinks = config
-				.getReplicationLinks(startNodeName);
+				.getReplicationLinks(startNode);
 		// We Select all replication Links where this node is the src
 		replicationLinks = replicationLinks.stream()
 				.filter(link -> link.getSrc().equals(this.nodeName))
 				.collect(Collectors.toList());
 		try {
-			return  replicationService.sendReplicates(startNodeName,
+			return replicationService.sendReplicates(startNode,
 					replicationLinks, operation);
 		} catch (Exception e) {
 			e.printStackTrace();

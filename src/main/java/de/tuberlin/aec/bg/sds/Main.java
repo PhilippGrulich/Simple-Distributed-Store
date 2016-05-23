@@ -26,12 +26,17 @@ public class Main {
 		APIService hermesAPIService = new HermesApiService();
 		ReplicationService replicationService = new ReplicationService();
 		
-		Node node = new Node("NodeID",c,replicationService,hermesAPIService);
+		Node node = new Node(nodeName,c,replicationService,hermesAPIService);
 		
 		// Start Hermes receiver
 		System.out.println("Start Hermes Port:" +hermesPort);
 		Receiver r = new Receiver(hermesPort);
 		r.start();
+		
+		
+		System.out.println(c.configValue("localhost:9001"));
+		System.out.println(c.configValue("localhost:9002"));
+		System.out.println(c.configValue("localhost:9003"));
 
 		/*
 		 * if(path.length != 0){ for(String x : path){

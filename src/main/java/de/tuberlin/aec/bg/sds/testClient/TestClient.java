@@ -12,7 +12,7 @@ public class TestClient {
 	private static Sender s;
 
 	public static void main(String[] args) throws IOException {
-		 s = new Sender("localhost", 9001);
+		 s = new Sender("localhost", 9003);
 		Receiver r = new Receiver(7777);
 		r.start();
 		

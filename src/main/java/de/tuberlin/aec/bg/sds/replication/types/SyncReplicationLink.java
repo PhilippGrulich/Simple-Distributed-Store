@@ -2,7 +2,7 @@ package de.tuberlin.aec.bg.sds.replication.types;
 
 
 public class SyncReplicationLink extends ReplicationLink {
-	String target;
+	public final String target;
 
 	public SyncReplicationLink(String src, String target) {
 		super(src);
