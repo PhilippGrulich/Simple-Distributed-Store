@@ -1,11 +1,9 @@
 package de.tuberlin.aec.bg.sds;
 
-import java.beans.XMLDecoder;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +13,8 @@ import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 import de.tuberlin.aec.bg.sds.replication.types.ASyncReplicationLink;
-import de.tuberlin.aec.bg.sds.replication.types.ReplicationLink;
 import de.tuberlin.aec.bg.sds.replication.types.QuorumReplicationNode;
+import de.tuberlin.aec.bg.sds.replication.types.ReplicationLink;
 import de.tuberlin.aec.bg.sds.replication.types.SyncReplicationLink;
 
 public class Config {

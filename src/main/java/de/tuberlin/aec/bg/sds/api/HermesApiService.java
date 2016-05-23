@@ -7,6 +7,7 @@ import de.tub.ise.hermes.Response;
 import de.tuberlin.aec.bg.sds.Operation;
 public class HermesApiService extends APIService {
 	public HermesApiService() {
+		System.out.println("Create Hermes API Service");
 		RequestHandlerRegistry.getInstance().registerHandler("api",new ApiRequestHandler());
 	}
 	
@@ -16,9 +17,9 @@ public class HermesApiService extends APIService {
 		public Response handleRequest(Request req) {
 			Operation operation = (Operation)req.getItems().get(0);
 			
-			Boolean result = callback.apply(operation);
+			APIResultMessage result = callback.apply(operation);
 			
-			return new Response("apiResponse", result, req, result);
+			return new Response("apiResponse", result.resultCode, req, result.resultValue);
 			
 		}
 

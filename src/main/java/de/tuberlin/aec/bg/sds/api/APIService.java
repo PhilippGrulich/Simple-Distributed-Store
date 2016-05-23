@@ -6,8 +6,8 @@ import java.util.function.Function;
 import de.tuberlin.aec.bg.sds.Operation;
 
 public abstract class APIService {
-	Function<Operation,Boolean> callback;
-	public void registerOperationCallback(Function<Operation,Boolean> operationCallback){
+	Function<Operation,APIResultMessage> callback;
+	public void registerOperationCallback(Function<Operation,APIResultMessage> operationCallback){
 		this.callback = operationCallback;
 	}
 }

@@ -1,13 +1,13 @@
 package de.tuberlin.aec.bg.sds.replication.types;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class QuorumReplicationNode extends ReplicationLink {
-	List<String> qpartiqparticipant;
+	List<String> qpartiqparticipant = new ArrayList<String>();
 	int qSize;
 	public QuorumReplicationNode(String src, int qSize) {
 		super(src);
-		this.qpartiqparticipant = qpartiqparticipant;
 		this.qSize = qSize;
 	}
 	

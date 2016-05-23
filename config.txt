@@ -1,16 +1,16 @@
 <replicationpaths>
-	<path start="A">
-		<link src="A" type="sync" target="B"/>
-		<link src="B" type="async" target="C"/>
+	<path start="localhost:9001">
+		<link src="localhost:9001" type="sync" target="localhost:9002"/>
+		<link src="localhost:9002" type="async" target="localhost:9003"/>
 	</path>
-	<path start="B">
-		<link src="B" type="quorum" qsize="1">
-			<qparticipant name="A"/>
-			<qparticipant name="C"/>
+	<path start="localhost:9002">
+		<link src="localhost:9002" type="quorum" qsize="1">
+			<qparticipant name="localhost:9001"/>
+			<qparticipant name="localhost:3003"/>
 		</link>		
 	</path>
-	<path start="C">
-		<link src="C" type="async" target="A"/>
-		<link src="C" type="async" target="B"/>
+	<path start="localhost:9003">
+		<link src="localhost:9003" type="async" target="localhost:9001"/>
+		<link src="localhost:9003" type="async" target="localhost:9002"/>
 	</path>
 </replicationpaths>

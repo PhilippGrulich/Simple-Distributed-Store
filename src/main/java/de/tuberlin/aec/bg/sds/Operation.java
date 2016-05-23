@@ -7,7 +7,7 @@ public class Operation implements Serializable {
 	public enum Type{
 		GET,
 		DELETE,
-		SET
+		PUT
 	}
 	
 	public final String key, value;
@@ -19,5 +19,13 @@ public class Operation implements Serializable {
 		this.value = value;
 		this.operationType = operationType;
 	}
+
+	@Override
+	public String toString() {
+		return "Operation [key=" + key + ", value=" + value
+				+ ", operationType=" + operationType + "]";
+	}
+	
+	
 
 }

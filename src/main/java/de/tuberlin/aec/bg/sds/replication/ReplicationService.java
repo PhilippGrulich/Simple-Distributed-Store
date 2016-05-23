@@ -32,11 +32,12 @@ public class ReplicationService {
 	private Function<ReplicationMessage,Boolean> callback;
 
 	public ReplicationService() throws IOException {
+		System.out.println("Create Replication Service");
 		RequestHandlerRegistry.getInstance().registerHandler("replication",new ReplicationRequestHandler()   );
        
 	}
 	
-	public boolean sendReplicates(String startNode, List<ReplicationLink> replicationLinks, Operation operation ){
+	public boolean sendReplicates(String startNode, List<ReplicationLink> replicationLinks, Operation operation ) throws Exception{
 		boolean returnValue = true;
 		for (ReplicationLink replicationLink: replicationLinks){
 			returnValue = returnValue && true == sendData(startNode,replicationLink,operation);	
@@ -57,12 +58,20 @@ public class ReplicationService {
 	 * @param keyValue : key:value
 	 * @param port : target port
 	 * @return 
+	 * @throws Exception 
 	 * 
 	 */
-	private boolean sendData(String startNode, ReplicationLink replicationLink, Operation operation){
+	private boolean sendData(String startNode, ReplicationLink replicationLink, Operation operation) throws Exception{
 		ReplicationMessage replicationMessage = new ReplicationMessage(operation, startNode);
-        Request req = new Request(replicationMessage,"replica","replica");
-		Sender s = new Sender("localhost", 10);
+        Request req = new Request(replicationMessage,"replica","replicaResult");
+        // Get node host and port by name
+        String[] splited = replicationLink.src.split(":");
+        if(splited.length!=2)
+        	throw new Exception("Node Name is not right formatted :"+ replicationLink);
+        String nodeHost = splited[0];
+        String nodePort = splited[1];
+        
+		Sender s = new Sender(nodeHost, Integer.parseInt(nodePort));
 		
 		if(replicationLink instanceof ASyncReplicationLink){
 			AsyncCallback echoAsyncCallback = new AsyncCallback();
