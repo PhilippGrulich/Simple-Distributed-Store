@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuorumReplicationNode extends ReplicationLink {
-	List<String> qpartiqparticipant = new ArrayList<String>();
-	int qSize;
+	public List<String> qpartiqparticipant = new ArrayList<String>();
+	public int qSize;
+	
 	public QuorumReplicationNode(String src, int qSize) {
 		super(src);
 		this.qSize = qSize;

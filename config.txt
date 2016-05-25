@@ -4,9 +4,11 @@
 		<link src="localhost:9002" type="async" target="localhost:9003"/>
 	</path>
 	<path start="localhost:9002">
-		<link src="localhost:9002" type="quorum" qsize="1">
+		<link src="localhost:9002" type="quorum" qsize="2">
 			<qparticipant name="localhost:9001"/>
-			<qparticipant name="localhost:3003"/>
+			<qparticipant name="localhost:9003"/>
+			<qparticipant name="localhost:9004"/>
+			<qparticipant name="localhost:9005"/>
 		</link>		
 	</path>
 	<path start="localhost:9003">

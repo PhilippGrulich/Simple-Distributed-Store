@@ -3,6 +3,7 @@ package de.tuberlin.aec.bg.sds.replication;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 
@@ -19,6 +20,7 @@ import de.tub.ise.hermes.handlers.EchoRequestHandler;
 import de.tuberlin.aec.bg.sds.Log;
 import de.tuberlin.aec.bg.sds.Operation;
 import de.tuberlin.aec.bg.sds.replication.types.ASyncReplicationLink;
+import de.tuberlin.aec.bg.sds.replication.types.QuorumReplicationNode;
 import de.tuberlin.aec.bg.sds.replication.types.ReplicationLink;
 import de.tuberlin.aec.bg.sds.replication.types.SyncReplicationLink;
 
@@ -87,7 +89,7 @@ public class ReplicationService {
 				operation, startNode);
 		Request req = new Request(replicationMessage, "replication",
 				"replicationResult");
-
+		//Asynchronize
 		if (replicationLink instanceof ASyncReplicationLink) {
 			// Get node host and port by name
 			ASyncReplicationLink asyncReplicationLink = (ASyncReplicationLink) replicationLink;
@@ -106,6 +108,7 @@ public class ReplicationService {
 			Sender s = new Sender(nodeHost, Integer.parseInt(nodePort));
 			AsyncCallback echoAsyncCallback = new AsyncCallback();
 			return s.sendMessageAsync(req, echoAsyncCallback);
+		//Synchronize
 		} else if (replicationLink instanceof SyncReplicationLink) {
 			
 			// Get node host and port by name
@@ -125,7 +128,31 @@ public class ReplicationService {
 			Response received = s.sendMessage(req, 3000);
 			
 			return received.responseCode();
+		//Quorum
+		} else if (replicationLink instanceof QuorumReplicationNode){
+			QuorumReplicationNode quorumReplicationLink = (QuorumReplicationNode) replicationLink;
+			
+			int size = quorumReplicationLink.qSize;
+			boolean isSentAll = true;
+			
+			for(int i = 0; i < size; i++){
+				String[] splited = quorumReplicationLink.qpartiqparticipant.get(i).split(":");
+				
+				String nodeHost = splited[0];
+				String nodePort = splited[1];
+				
+				System.out.println("Replicate ASync to " + quorumReplicationLink.qpartiqparticipant.get(i));
+				log.writeToFile("Replicate ASync to " + quorumReplicationLink.qpartiqparticipant.get(i), startNode);
+				
+				Sender s = new Sender(nodeHost, Integer.parseInt(nodePort));
+				AsyncCallback echoAsyncCallback = new AsyncCallback();
+				
+				if(s.sendMessageAsync(req, echoAsyncCallback)){ isSentAll = false; }
+			}
+			
+			return isSentAll;
 		}
+		
 		return false;
 	}
 
