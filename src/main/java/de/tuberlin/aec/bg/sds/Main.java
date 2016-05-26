@@ -24,6 +24,7 @@ public class Main {
 		System.out.println(c.configValue(nodeName));
 
 		APIService hermesAPIService = new HermesApiService();
+		
 		ReplicationService replicationService = new ReplicationService(nodeName);
 		
 		Node node = new Node(nodeName,c,replicationService,hermesAPIService);

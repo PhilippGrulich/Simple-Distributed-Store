@@ -1,22 +1,16 @@
 package de.tuberlin.aec.bg.sds.replication;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.Callable;
+import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
-
-import javax.security.auth.callback.Callback;
 
 import de.tub.ise.hermes.AsyncCallbackRecipient;
 import de.tub.ise.hermes.IRequestHandler;
-import de.tub.ise.hermes.Receiver;
 import de.tub.ise.hermes.Request;
 import de.tub.ise.hermes.RequestHandlerRegistry;
 import de.tub.ise.hermes.Response;
 import de.tub.ise.hermes.Sender;
-import de.tub.ise.hermes.handlers.EchoRequestHandler;
 import de.tuberlin.aec.bg.sds.Log;
 import de.tuberlin.aec.bg.sds.Operation;
 import de.tuberlin.aec.bg.sds.replication.types.ASyncReplicationLink;
@@ -35,6 +29,7 @@ public class ReplicationService {
 	private Function<ReplicationMessage, Boolean> callback;
 	private Log log = new Log();
 	String nodeName = "";
+	private int counter;
 	
 	public ReplicationService(String nodeName) throws IOException {
 		
@@ -134,8 +129,8 @@ public class ReplicationService {
 			
 			int size = quorumReplicationLink.qSize;
 			boolean isSentAll = true;
-			
-			for(int i = 0; i < size; i++){
+			counter = 0;
+			for(int i = 0; i < quorumReplicationLink.qpartiqparticipant.size(); i++){
 				String[] splited = quorumReplicationLink.qpartiqparticipant.get(i).split(":");
 				
 				String nodeHost = splited[0];
@@ -150,6 +145,14 @@ public class ReplicationService {
 				if(s.sendMessageAsync(req, echoAsyncCallback)){ isSentAll = false; }
 			}
 			
+			
+			while(counter < size){
+				Thread.sleep(1000);
+			}
+			
+			// wait till 2 response 
+			
+			
 			return isSentAll;
 		}
 		
@@ -163,31 +166,30 @@ public class ReplicationService {
 	 */
 	private class AsyncCallback implements AsyncCallbackRecipient {
 
-		public boolean isEchoSuccessful() {
-			return echoSuccessful;
-		}
-
-		public void setEchoSuccessful(boolean echoSuccessful) {
-			this.echoSuccessful = echoSuccessful;
-		}
-
-		private boolean echoSuccessful;
-
-		public Response getResponse() {
-
-			return response;
-		}
-
-		public void setResponse(Response response) {
-			this.response = response;
-		}
-
-		private Response response;
+//		public boolean isEchoSuccessful() {
+//			return echoSuccessful;
+//		}
+//
+//		public void setEchoSuccessful(boolean echoSuccessful) {
+//			this.echoSuccessful = echoSuccessful;
+//		}
+//
+//		private boolean echoSuccessful;
+//
+//		public Response getResponse() {
+//
+//			return response;
+//		}
+//
+//		public void setResponse(Response response) {
+//			this.response = response;
+//		}
+//
+//		private Response response;
 
 		public void callback(Response resp) {
-			setResponse(resp);
-
-			setEchoSuccessful(resp.responseCode());
+			
+			counter++;
 		}
 	}
 
