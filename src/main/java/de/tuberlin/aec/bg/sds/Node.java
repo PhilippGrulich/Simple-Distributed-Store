@@ -27,37 +27,31 @@ public class Node {
 	 * @param id
 	 *            of the node
 	 */
-	public Node(String nodeName, Config config,
-			ReplicationService replicationService, APIService... apiservices) {
+	public Node(String nodeName, Config config, ReplicationService replicationService, APIService... apiservices) {
 		this.nodeName = nodeName;
 		this.config = config;
 		dataStore = new DataStore();
 		this.replicationService = replicationService;
 		replicationService.registerReplicaCallback(replicationMessage -> {
 			// we have to save the new key value pair
-				this.dataStore.executeOperation(replicationMessage
-						.getOperation());
-				return this.sendReplication(replicationMessage.getOperation(),
-						replicationMessage.getStartNode());
-			});
+			this.dataStore.executeOperation(replicationMessage.getOperation());
+			return this.sendReplication(replicationMessage.getOperation(), replicationMessage.getStartNode());
+		});
 
 		// we have to create an public api for the client. So he can start an
 		// update.
 		// maybe as a http rest api? so it would be cool for demonstration ?
 		for (APIService apiservice : apiservices) {
-			apiservice
-					.registerOperationCallback(operation -> {
-						String returnValue = this.dataStore
-								.executeOperation(operation);
-						if (operation.operationType == Type.PUT) {
-							Boolean resultCode = this.sendReplication(
-									operation, this.nodeName);
-							return new APIResultMessage(returnValue, resultCode);
-						} else {
-							return new APIResultMessage(returnValue, true);
-						}
+			apiservice.registerOperationCallback(operation -> {
+				String returnValue = this.dataStore.executeOperation(operation);
+				if (operation.operationType != Type.GET) {
+					Boolean resultCode = this.sendReplication(operation, this.nodeName);
+					return new APIResultMessage(returnValue, resultCode);
+				} else {
+					return new APIResultMessage(returnValue, true);
+				}
 
-					});
+			});
 		}
 	}
 
@@ -69,15 +63,12 @@ public class Node {
 	 */
 	private Boolean sendReplication(Operation operation, String startNode) {
 
-		List<ReplicationLink> replicationLinks = config
-				.getReplicationLinks(startNode);
+		List<ReplicationLink> replicationLinks = config.getReplicationLinks(startNode);
 		// We Select all replication Links where this node is the src
-		replicationLinks = replicationLinks.stream()
-				.filter(link -> link.getSrc().equals(this.nodeName))
+		replicationLinks = replicationLinks.stream().filter(link -> link.getSrc().equals(this.nodeName))
 				.collect(Collectors.toList());
 		try {
-			return replicationService.sendReplicates(startNode,
-					replicationLinks, operation);
+			return replicationService.sendReplicates(startNode, replicationLinks, operation);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

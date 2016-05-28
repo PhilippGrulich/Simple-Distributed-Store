@@ -11,7 +11,8 @@ public class Log {
 	 * @param text :
 	 * 					The text that we want to log
 	 */
-	public void writeToFile(String text, String nodeSrc){
+	public static void writeToFile(String text, String nodeSrc){
+		System.out.println("Log: "+nodeSrc+":"+text);
 		try(FileWriter fw = new FileWriter("log.txt", true);
 			BufferedWriter bw = new BufferedWriter(fw);
 			PrintWriter out = new PrintWriter(bw)){

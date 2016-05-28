@@ -1,6 +1,5 @@
 package de.tuberlin.aec.bg.sds;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import de.tub.ise.hermes.Receiver;
@@ -27,34 +26,17 @@ public class Main {
 		
 		ReplicationService replicationService = new ReplicationService(nodeName);
 		
-		Node node = new Node(nodeName,c,replicationService,hermesAPIService);
+		new Node(nodeName,c,replicationService,hermesAPIService);
 		
 		// Start Hermes receiver
-		System.out.println("Start Hermes Port:" +hermesPort);
+		Log.writeToFile("Start Hermes Port:" +hermesPort,nodeName);
 		Receiver r = new Receiver(hermesPort);
 		r.start();
 		
 		
-		System.out.println(c.configValue("localhost:9001"));
-		System.out.println(c.configValue("localhost:9002"));
-		System.out.println(c.configValue("localhost:9003"));
+		System.out.println(c.configValue(nodeName));
 
-		/*
-		 * if(path.length != 0){ for(String x : path){
-		 * 
-		 * String[] conf = x.split("\\|");
-		 * 
-		 * String src = conf[0]; String type = conf[1]; String target = conf[2];
-		 * 
-		 * 
-		 * try { if(type == "sync"){ a.doStartNode(target, "Tes|3",0); //Start
-		 * syncronous } else if (type == "async"){ a.doStartNode(target,
-		 * "Tes|3",1); //Start asyncronous } } catch (IOException e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); } } }
-		 */
-
-		/*
-		*/
+		
 	}
 
 }
