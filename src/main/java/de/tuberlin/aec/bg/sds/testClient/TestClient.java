@@ -6,7 +6,7 @@ public class TestClient {
 
 	public static void main(String[] args) throws IOException {
 		
-		DatabaseClient db = new DatabaseClient("localhost", 9002);
+		DatabaseClient db = new DatabaseClient("localhost", 9001);
 		System.out.println(db.put("TestKey", "TestValue"));
 		System.out.println(db.get("TestKey"));
 		System.out.println(db.delete("TestKey"));

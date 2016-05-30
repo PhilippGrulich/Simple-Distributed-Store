@@ -24,3 +24,21 @@ localhost:9001 : Got a replication message
 localhost:9003 : Got a replication message
 localhost:9005 : Got a replication message
 localhost:9004 : Got a replication message
+localhost:9001 : Create Replication Service
+localhost:9001 : Start Hermes Port:9001
+localhost:9002 : Create Replication Service
+localhost:9002 : Start Hermes Port:9002
+localhost:9003 : Create Replication Service
+localhost:9003 : Start Hermes Port:9003
+localhost:9001 : Replicate Sync to localhost:9002
+localhost:9001 : Replicate Sync to localhost:9002
+localhost:9002 : Create Replication Service
+localhost:9002 : Start Hermes Port:9002
+localhost:9001 : Replicate Sync to localhost:9002
+localhost:9002 : Got a replication message
+localhost:9001 : Replicate ASync to localhost:9003
+localhost:9001 : Replicate Sync to localhost:9002
+localhost:9002 : Got a replication message
+localhost:9001 : Replicate ASync to localhost:9003
+localhost:9003 : Got a replication message
+localhost:9003 : Got a replication message

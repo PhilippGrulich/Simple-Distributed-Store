@@ -34,23 +34,28 @@ public class Node {
 		this.replicationService = replicationService;
 		replicationService.registerReplicaCallback(replicationMessage -> {
 			// we have to save the new key value pair
-			this.dataStore.executeOperation(replicationMessage.getOperation());
-			return this.sendReplication(replicationMessage.getOperation(), replicationMessage.getStartNode());
+			
+			Boolean replicationResult = this.sendReplication(replicationMessage.getOperation(), replicationMessage.getStartNode());
+			if(replicationResult)
+				this.dataStore.executeOperation(replicationMessage.getOperation());
+			return replicationResult;
 		});
 
 		// we have to create an public api for the client. So he can start an
 		// update.
 		// maybe as a http rest api? so it would be cool for demonstration ?
 		for (APIService apiservice : apiservices) {
-			apiservice.registerOperationCallback(operation -> {
-				String returnValue = this.dataStore.executeOperation(operation);
+			apiservice.registerOperationCallback(operation -> {				
 				if (operation.operationType != Type.GET) {
 					Boolean resultCode = this.sendReplication(operation, this.nodeName);
-					return new APIResultMessage(returnValue, resultCode);
+					if(resultCode){
+						this.dataStore.executeOperation(operation);
+					}
+					return new APIResultMessage(null, resultCode);
 				} else {
+					String returnValue = this.dataStore.executeOperation(operation);
 					return new APIResultMessage(returnValue, true);
 				}
-
 			});
 		}
 	}
